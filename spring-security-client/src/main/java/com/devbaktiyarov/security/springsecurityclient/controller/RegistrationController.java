@@ -5,9 +5,9 @@ import com.devbaktiyarov.security.springsecurityclient.event.RegistrationCompete
 import com.devbaktiyarov.security.springsecurityclient.model.UserModel;
 import com.devbaktiyarov.security.springsecurityclient.service.UserService;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 public class RegistrationController {
@@ -21,9 +21,27 @@ public class RegistrationController {
     }
 
     @PostMapping("/register")
-    public String registerUser(@RequestBody UserModel userModel) {
+    public String registerUser(@RequestBody UserModel userModel, final HttpServletRequest request) {
         User user = userService.registerUser(userModel);
-        publisher.publishEvent(new RegistrationCompetedEvent(user, "url"));
+        publisher.publishEvent(new RegistrationCompetedEvent(user, applicationUrl(request)));
         return "User registered successfully";
+    }
+
+    private String applicationUrl(HttpServletRequest request) {
+        return "http://" + request.getServerName() +
+                ":" + request.getServerPort() +
+                request.getContextPath();
+    }
+
+    @GetMapping("/verifyRegistration")
+    public String verifyRegistration(@RequestParam("token") String token) {
+        String result = userService.validateVerificationToken(token);
+
+        if (result.equalsIgnoreCase("valid")) {
+            return "User verifies successfully";
+        }
+
+        return "User verifies unsuccessfully";
+
     }
 }
