@@ -3,7 +3,6 @@ package com.devbaktiyarov.security.springsecurityclient.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Columns;
 
 import javax.persistence.*;
 
@@ -18,6 +17,7 @@ public class User {
 
     private String firstName;
     private String lastName;
+    @Column(name = "email", unique = true)
     private String email;
 
     @Column(length = 60)
